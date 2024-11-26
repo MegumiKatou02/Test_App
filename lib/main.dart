@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/data/repository/repository.dart';
 
-void main() {}
+void main() async {
+  var repository = DefaultRepository();
+  var songs = await repository.loadData();
+  if (songs != null) {
+    for (var song in songs) {
+      debugPrint(song.toString());
+    }
+  }
+}
 
 class MusicApp extends StatelessWidget {
   const MusicApp({super.key});
