@@ -4,6 +4,9 @@ import 'package:myapp/ui/discovery/discovery.dart';
 import 'package:myapp/ui/settings/settings.dart';
 import 'package:myapp/ui/user/user.dart';
 
+import '../../data/model/song.dart';
+import 'viewmodal.dart';
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -65,10 +68,78 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Home Tab'),
-      ),
+    return const HomeTabPage();
+  }
+}
+
+class HomeTabPage extends StatefulWidget {
+  const HomeTabPage({super.key});
+
+  @override
+  State<HomeTabPage> createState() => _HomeTabPageState();
+}
+
+class _HomeTabPageState extends State<HomeTabPage> {
+  List<Song> songs = [];
+  late MusicAppViewModal _viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = MusicAppViewModal();
+    _viewModel.loadSong();
+    observeData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: getBody(),
     );
+  }
+
+  Widget getBody() {
+    bool showLoading = songs.isEmpty;
+    if (showLoading) {
+      return getProgressBar();
+    } else {
+      return getListView();
+    }
+  }
+
+  Widget getProgressBar() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget getListView() {
+    return ListView.separated(
+      itemBuilder: (context, position) {
+        return getRow(position);
+      },
+      separatorBuilder: (context, index) {
+        return const Divider(
+          color: Colors.grey,
+          thickness: 1,
+          indent: 24,
+          endIndent: 24,
+        );
+      },
+      itemCount: songs.length,
+      shrinkWrap: true,
+    );
+  }
+
+  Widget getRow(int index) {
+    return Text(songs[index].title);
+  }
+
+  void observeData() {
+    _viewModel.songStream.stream.listen((songList) {
+      setState(() {
+        songs.addAll(songList);
+      });
+    });
   }
 }
